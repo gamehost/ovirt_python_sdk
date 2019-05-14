@@ -3,3 +3,5 @@ venv*
 *.pem
 main*.py
 Makefile
+dist
+*.egg-info
