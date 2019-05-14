@@ -5,7 +5,7 @@ setuptools.setup(
     version='0.0.1',
     author='Toliak, Underlor',
     author_email='ibolosik@gmail.com',
-    url='https://gitlab.keln.space/CrazyDev/ovirtsdk',
+    url='https://github.com/gamehost/ovirt_python_sdk',
     description='Обертка для oVirt SDK',
     install_requires=[
         'ovirt-engine-sdk-python',
