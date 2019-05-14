@@ -238,3 +238,60 @@ class Ovirt:
             )
         )
 
+    def get_storage_domains_by_name(self, name: str) -> list:
+        """
+        Получение storage domains по имени
+
+        :param name: Название домена
+        :return: Список StorageDomain
+        """
+        return self._connection.system_service().storage_domains_service().list(search=f'name={name}')
+
+    def get_storage_domain_by_name(self, name: str) -> types.StorageDomain:
+        """
+        Получение одного storage domain по имени
+
+        :param name: Имя домена
+        """
+        result = self.get_storage_domains_by_name(name)
+
+        if len(result) > 1:
+            raise TooManyItemsException(len(result))
+
+        return result[0] if result else None
+
+    def create_vm_disk(
+            self,
+            vm: types.Vm,
+            storage_domain: types.StorageDomain,
+            name: str,
+            description: str,
+            size: int,
+            disk_format: types.DiskFormat = types.DiskFormat.RAW,
+            bootable: bool = False,
+            active: bool = True,
+            wipe_after_delete: bool = True,
+            read_only: bool = False,
+            shareable: bool = False,
+    ) -> types.DiskAttachment:
+        disk_service = self._connection.system_service().vms_service().vm_service(vm.id).disk_attachments_service()
+
+        return disk_service.add(
+            types.DiskAttachment(
+                disk=types.Disk(
+                    name=name,
+                    description=description,
+                    format=disk_format,
+                    provisioned_size=size,
+                    storage_domains=[
+                        storage_domain
+                    ],
+                    wipe_after_delete=wipe_after_delete,
+                    read_only=read_only,
+                    shareable=shareable,
+                ),
+                interface=types.DiskInterface.VIRTIO,
+                bootable=bootable,
+                active=active,
+            ),
+        )
