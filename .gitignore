@@ -2,3 +2,4 @@ venv*
 .idea
 *.pem
 main*.py
+Makefile
