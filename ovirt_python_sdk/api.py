@@ -156,6 +156,30 @@ class Ovirt:
         """
         self._connection.system_service().vms_service().vm_service(vm.id).remove()
 
+    def start_vm(self, vm: types.Vm):
+        """
+        Запуск ВМ
+        """
+        self._connection.system_service().vms_service().vm_service(vm.id).start()
+
+    def reboot_vm(self, vm: types.Vm):
+        """
+        Перезагрузка ВМ
+        """
+        self._connection.system_service().vms_service().vm_service(vm.id).reboot()
+
+    def stop_vm(self, vm: types.Vm):
+        """
+        Принудительное выключение ВМ
+        """
+        self._connection.system_service().vms_service().vm_service(vm.id).stop()
+
+    def shutdown_vm(self, vm: types.Vm):
+        """
+        Запрос на остановку ВМ
+        """
+        self._connection.system_service().vms_service().vm_service(vm.id).shutdown()
+
     def get_vms_by_name(self, name: str) -> list:
         """
         Поиск виртуальных машин по имени
