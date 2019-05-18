@@ -6,11 +6,11 @@ from ovirt_python_sdk.exceptions import TooManyItemsException, NotEnoughMemoryEx
 
 class Ovirt:
     def __init__(
-            self,
-            url,
-            username,
-            password,
-            ca_file,
+        self,
+        url,
+        username,
+        password,
+        ca_file,
     ):
         self._connection = sdk.Connection(
             url=url,
@@ -105,12 +105,12 @@ class Ovirt:
         return int(self.get_host_stat(host)['memory.free'])
 
     def create_vm(
-            self,
-            name: str,
-            host: types.Host,
-            memory: int,
-            cpu_sockets: int,
-            template: types.Template
+        self,
+        name: str,
+        host: types.Host,
+        memory: int,
+        cpu_sockets: int,
+        template=None
     ) -> types.Vm:
         """
         Создание виртуальной машины
@@ -122,9 +122,11 @@ class Ovirt:
         :param template: Шаблон ВМ
         :return: Созданная ВМ
         """
+
         vms_service = self._connection.system_service().vms_service()
 
         free_memory = self.get_host_free_memory(host)
+
         if free_memory < memory:
             raise NotEnoughMemoryException(free_memory, memory)
 
@@ -132,7 +134,7 @@ class Ovirt:
             vm=types.Vm(
                 name=name,
                 cluster=host.cluster,
-                template=template,
+                template=template or types.Template(name='Blank'),
                 cpu=types.Cpu(
                     topology=types.CpuTopology(
                         sockets=cpu_sockets
@@ -261,18 +263,18 @@ class Ovirt:
         return result[0] if result else None
 
     def create_vm_disk(
-            self,
-            vm: types.Vm,
-            storage_domain: types.StorageDomain,
-            name: str,
-            description: str,
-            size: int,
-            disk_format: types.DiskFormat = types.DiskFormat.RAW,
-            bootable: bool = False,
-            active: bool = True,
-            wipe_after_delete: bool = True,
-            read_only: bool = False,
-            shareable: bool = False,
+        self,
+        vm: types.Vm,
+        storage_domain: types.StorageDomain,
+        name: str,
+        description: str,
+        size: int,
+        disk_format: types.DiskFormat = types.DiskFormat.RAW,
+        bootable: bool = False,
+        active: bool = True,
+        wipe_after_delete: bool = True,
+        read_only: bool = False,
+        shareable: bool = False,
     ) -> types.DiskAttachment:
         disk_service = self._connection.system_service().vms_service().vm_service(vm.id).disk_attachments_service()
 

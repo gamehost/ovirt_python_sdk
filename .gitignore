@@ -2,3 +2,6 @@ venv*
 .idea
 *.pem
 main*.py
+Makefile
+dist
+*.egg-info

@@ -6,7 +6,7 @@ setuptools.setup(
     author='Toliak, Underlor',
     author_email='cfyz_74@mail.ru',
     url='https://github.com/gamehost/ovirt_python_sdk',
-    description='Обертка для oVirt SDK',
+    description='Ovirt Python SDK',
     install_requires=[
         'ovirt-engine-sdk-python',
     ],
