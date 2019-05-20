@@ -1,4 +1,4 @@
-from ovirt_python_sdk.api import Ovirt
+from ovirt_python_sdk import Ovirt
 
 api = Ovirt(url='http://site.ru', username='username', password='password', ca_file='path_to_ca_file')
 
