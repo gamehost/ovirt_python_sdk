@@ -32,9 +32,6 @@ while api.get_vm_status_by_name('vm_name') == VmStatus.UP:
     sleep(1)
 
 api.stop_vm(vm)
-# Ждем полную остановку
-while api.get_vm_status_by_name('vm_name') == VmStatus.DOWN:
-    sleep(1)
 
 # Удаляем ВМ
 api.remove_vm(vm)
