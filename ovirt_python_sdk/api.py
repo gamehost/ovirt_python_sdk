@@ -44,6 +44,28 @@ class Ovirt:
         """
         return self._connection.system_service().hosts_service().list(search=f'name={name}')
 
+    def get_disk_by_name(self, name: str) -> types.Disk:
+        """
+        Получение одного диска по имени
+
+        :param name: Имя диска
+        """
+        result = self.get_disks_by_name(name)
+
+        if len(result) > 1:
+            raise TooManyItemsException(len(result))
+
+        return result[0] if result else None
+
+    def get_disks_by_name(self, name: str) -> list:
+        """
+        Поиск дисков по имени
+
+        :param name: Имя диска
+        :return: Список найденных дисков
+        """
+        return self._connection.system_service().disks_service().list(search=f'name={name}')
+
     def get_host_stat(self, host: types.Host) -> dict:
         """
         Получение статистики хоста
@@ -203,6 +225,26 @@ class Ovirt:
             raise TooManyItemsException(len(result))
 
         return result[0] if result else None
+
+    def get_vm_status_by_name(self, name: str) -> str:
+        """
+        Получение статуса ВМ
+        """
+        vm = self.get_vm_by_name(name)
+        return vm.status
+
+    def rename_vm(self, vm: types.Vm, new_name: str):
+        """
+        Изменение имени ВМ
+        :param vm: ВМ
+        :param new_name: Новое имя
+        """
+        vm_service = self._connection.system_service().vms_service().vm_service(vm.id)
+        vm_service.update(
+            types.Vm(
+                name=new_name
+            )
+        )
 
     def set_vm_cpu_shares(self, vm: types.Vm, cpu_sockets: int):
         """
