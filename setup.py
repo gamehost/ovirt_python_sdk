@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name='ovirt_python_sdk',
-    version='1.1.2',
+    version='1.2.0',
     author='Toliak, Underlor',
     author_email='cfyz_74@mail.ru',
     url='https://github.com/gamehost/ovirt_python_sdk',

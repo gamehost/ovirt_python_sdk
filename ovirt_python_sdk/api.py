@@ -1,16 +1,17 @@
 import ovirtsdk4 as sdk
 from ovirtsdk4 import types
 
-from ovirt_python_sdk.exceptions import TooManyItemsException, NotEnoughMemoryException
+from ovirt_python_sdk.exceptions import TooManyItemsException, NotEnoughMemoryException, ItemNotFoundException
+from ovirt_python_sdk.utils import find_one_in_list_by_name
 
 
 class Ovirt:
     def __init__(
-        self,
-        url,
-        username,
-        password,
-        ca_file,
+            self,
+            url,
+            username,
+            password,
+            ca_file,
     ):
         self._connection = sdk.Connection(
             url=url,
@@ -127,12 +128,12 @@ class Ovirt:
         return int(self.get_host_stat(host)['memory.free'])
 
     def create_vm(
-        self,
-        name: str,
-        host: types.Host,
-        memory: int,
-        cpu_sockets: int,
-        template=None
+            self,
+            name: str,
+            host: types.Host,
+            memory: int,
+            cpu_sockets: int,
+            template=None
     ) -> types.Vm:
         """
         Создание виртуальной машины
@@ -305,18 +306,18 @@ class Ovirt:
         return result[0] if result else None
 
     def create_vm_disk(
-        self,
-        vm: types.Vm,
-        storage_domain: types.StorageDomain,
-        name: str,
-        description: str,
-        size: int,
-        disk_format: types.DiskFormat = types.DiskFormat.RAW,
-        bootable: bool = False,
-        active: bool = True,
-        wipe_after_delete: bool = True,
-        read_only: bool = False,
-        shareable: bool = False,
+            self,
+            vm: types.Vm,
+            storage_domain: types.StorageDomain,
+            name: str,
+            description: str,
+            size: int,
+            disk_format: types.DiskFormat = types.DiskFormat.RAW,
+            bootable: bool = False,
+            active: bool = True,
+            wipe_after_delete: bool = True,
+            read_only: bool = False,
+            shareable: bool = False,
     ) -> types.DiskAttachment:
         disk_service = self._connection.system_service().vms_service().vm_service(vm.id).disk_attachments_service()
 
@@ -339,3 +340,57 @@ class Ovirt:
                 active=active,
             ),
         )
+
+    def get_vm_stats(self, vm: types.Vm) -> dict:
+        """
+        Получение статистики витруальной машины
+
+        Пример:
+
+        {
+            "memory.installed": 12884901888.0, \n
+            "memory.used": 7344394076.0, \n
+            "cpu.current.guest": 12.0, \n
+            "cpu.current.hypervisor": 1.7, \n
+            "cpu.current.total": 13.0, \n
+            "migration.progress": 0.0, \n
+            "memory.buffered": 168562688.0, \n
+            "memory.cached": 2871476224.0, \n
+            "memory.free": 2462732288.0 \n
+        }
+        """
+
+        stats = self._connection.follow_link(vm.statistics)
+        return {stat.name: stat.values[0].datum for stat in stats}
+
+    def add_vm_network(
+            self,
+            vm: types.Vm,
+            name: str,
+            profile_name: str,
+            mac: str,
+            interface_type: types.NicInterface = types.NicInterface.VIRTIO
+    ) -> types.Nic:
+        profiles_service = self._connection.system_service().vnic_profiles_service()
+        profile = find_one_in_list_by_name(profiles_service.list(), profile_name)
+
+        nics_service = self._connection.system_service().vms_service().vm_service(vm.id).nics_service()
+        return nics_service.add(
+            types.Nic(
+                name=name,
+                mac=types.Mac(
+                    address=mac
+                ),
+                interface=interface_type,
+                vnic_profile=types.VnicProfile(
+                    id=profile.id,
+                ),
+            )
+        )
+
+    def remove_vm_network(self, vm: types.Vm, network_name: str):
+        nics_service = self._connection.system_service().vms_service().vm_service(vm.id).nics_service()
+
+        nic: types.Nic = find_one_in_list_by_name(nics_service.list(), network_name)
+        nic_service = nics_service.service(nic.id)
+        nic_service.remove()
