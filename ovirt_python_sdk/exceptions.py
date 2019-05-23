@@ -17,3 +17,11 @@ class NotEnoughMemoryException(OvirtException):
 
     def __str__(self) -> str:
         return f'Ожидалось {self.excepted} Б, свободно {self.free}'
+
+
+class ItemNotFoundException(OvirtException):
+    def __init__(self, item_name: str):
+        self.item_name = item_name
+
+    def __str__(self) -> str:
+        return f'Не найдено "{self.item_name}"'
